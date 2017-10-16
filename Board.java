@@ -58,6 +58,46 @@ public class Board {
         return fringe;
     }
 
+    public LinkedList<Tile> depthLimitedSearch() {
+        /*
+        boolean left = false;
+        boolean right = false;
+        if(depth>0){
+            if(root.left==null&&root.right==null){
+                return true;
+            }
+            if(root.left!=null) {
+                left = depthLimitedSearch(root.left, depth-1);
+            }
+            if(root.right!=null) {
+                right = depthLimitedSearch(root.right, depth-1);
+            }
+            return left||right;
+        } else {
+            return false;
+        }
+        */
+        LinkedList<Tile> fringe = new LinkedList<>();
+        return fringe;
+    }
+
+    public LinkedList<Tile> iterativeDeepening() {
+        /*
+
+	int minDepth = 0;
+	boolean solutionFound= false;
+	while(true){
+		solutionFound = depthLimitedSearch(root,thisDepth);
+		if(solutionFound){
+			return minDepth;
+		} else {
+			minDepth++;
+		}
+         */
+        LinkedList<Tile> fringe = new LinkedList<>();
+        return fringe;
+    }
+
     public LinkedList<Tile> getAll() {
         LinkedList<Tile> allTiles = new LinkedList<>();
         Tile tile = null;
@@ -88,7 +128,7 @@ public class Board {
         public int getIndex() {
             for (int i = 0; i < board.length; i++) {
                 for (int j = 0; j < board.length; j++) {
-                    
+
                 }
             }
             return 1;
