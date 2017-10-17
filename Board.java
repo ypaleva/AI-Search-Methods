@@ -1,13 +1,11 @@
-import com.sun.corba.se.impl.oa.toa.TOA;
-
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class Board {
 
     private Tile[][] board;
+    private LinkedList<Tile> currentState;
 
     public Board() {
         this.board = new Tile[4][4];
@@ -16,7 +14,7 @@ public class Board {
 
     public Queue<Tile> bfs() {
         Queue<Tile> fringe = new LinkedList<>();
-        Tile current = new Tile();
+        Tile current = null;
         Tile root = board[0][0];
         if (root == null) {
             return null;
@@ -41,7 +39,7 @@ public class Board {
         if (tile == null) {
             return null;
         }
-        Tile current = new Tile();
+        Tile current = null;
         tile = current;
         Queue<Tile> fringe = new LinkedList<>();
         fringe.add(tile);
@@ -58,44 +56,60 @@ public class Board {
         return fringe;
     }
 
-    public LinkedList<Tile> depthLimitedSearch() {
-        /*
-        boolean left = false;
-        boolean right = false;
-        if(depth>0){
-            if(root.left==null&&root.right==null){
-                return true;
-            }
-            if(root.left!=null) {
-                left = depthLimitedSearch(root.left, depth-1);
-            }
-            if(root.right!=null) {
-                right = depthLimitedSearch(root.right, depth-1);
-            }
-            return left||right;
-        } else {
-            return false;
+    public LinkedList<Tile> depthLimitedSearch(Tile root, int depth) {
+
+        LinkedList<Tile> state = new LinkedList<>();
+        if (depth == 0 && isSolution()) {
+            return state;
         }
-        */
-        LinkedList<Tile> fringe = new LinkedList<>();
-        return fringe;
+        if (depth > 0) {
+            if ((root.left() == null) && (root.right() == null)) {
+                return null;
+            }
+            if (root.left() != null) {
+                depthLimitedSearch(root.left(), depth - 1);
+            }
+            if (root.right() != null) {
+                depthLimitedSearch(root.right(), depth - 1);
+            }
+        }
+
+        return null;
     }
 
-    public LinkedList<Tile> iterativeDeepening() {
-        /*
+    public LinkedList<Tile> iterativeDeepening(Tile root) {
+        LinkedList<Tile> state = new LinkedList<>();
+        for (int depth = 0; depth < Integer.MAX_VALUE; depth++) {
+           state = depthLimitedSearch(root, depth);
+          if (state != null) {
+           return state;
+          }
+       }
+       return state;
+    }
 
-	int minDepth = 0;
-	boolean solutionFound= false;
-	while(true){
-		solutionFound = depthLimitedSearch(root,thisDepth);
-		if(solutionFound){
-			return minDepth;
-		} else {
-			minDepth++;
-		}
-         */
-        LinkedList<Tile> fringe = new LinkedList<>();
-        return fringe;
+    public boolean isSolution() {
+        LinkedList<Tile> state = new LinkedList<>();
+        state.add(new Tile(0, 0));
+        state.add(new Tile(0, 1));
+        state.add(new Tile(0, 2));
+        state.add(new Tile(0, 3));
+        state.add(new Tile(1, 0));
+        state.add(new Tile(1, 1, 'A'));
+        state.add(new Tile(1, 2));
+        state.add(new Tile(1, 3));
+        state.add(new Tile(2, 0));
+        state.add(new Tile(2, 1, 'B'));
+        state.add(new Tile(2, 2));
+        state.add(new Tile(2, 3));
+        state.add(new Tile(3, 0));
+        state.add(new Tile(3, 1, 'C'));
+        state.add(new Tile(3, 2));
+        state.add(new Tile(3, 3));
+
+
+        if (currentState == state) return true;
+        return false;
     }
 
     public LinkedList<Tile> getAll() {
@@ -113,16 +127,26 @@ public class Board {
 
     public class Tile {
 
-        public Tile() {
+        private char letter;
+        private boolean isAgent;
+        private int row;
+        private int col;
 
+        public Tile(int row, int col) {
+            this.row = row;
+            this.col = col;
         }
 
-        public Tile(boolean isAgent) {
-
+        public Tile(int row, int col, boolean isAgent) {
+            this.row = row;
+            this.col = col;
+            this.isAgent = isAgent;
         }
 
-        public Tile(char letter) {
-
+        public Tile(int row, int col, char letter) {
+            this.row = row;
+            this.col = col;
+            this.letter = letter;
         }
 
         public int getIndex() {
@@ -132,6 +156,14 @@ public class Board {
                 }
             }
             return 1;
+        }
+
+        public boolean isAgent() {
+            return isAgent;
+        }
+
+        public char getLetter() {
+            return letter;
         }
 
         public ArrayList<Tile> neighbours() {
