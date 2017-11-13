@@ -7,6 +7,10 @@ public class Agent extends Tile {
        super(row, col, letter);
    }
 
+    public Agent(String letter) {
+        super(letter);
+    }
+
     public boolean isValidMove(){
         int row = this.getRow();
         int col = this.getCol();

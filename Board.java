@@ -3,6 +3,10 @@ import java.util.*;
 public class Board {
 
     private Tile[][] board;
+    private int n;
+    private Agent agent;
+    private List<Tile> blocks;
+
     private int[] currentAgentIndex;
     private Tile[][] currentState;
     private Tile[][] goalState = {
@@ -12,17 +16,12 @@ public class Board {
             {new Tile(3, 0, "_"), new Tile(3, 1, "C"), new Tile(3, 2, "_"), new Tile(3, 3, "_")},
     };
 
-    public Board(int n) {
+    public Board(int n, List<Tile> blocks, Agent agent) {
         this.initializeBoard(n);
+        this.blocks = blocks;
+        this.agent = agent;
 
-        List<Tile> blocks = new ArrayList<>();
-        blocks.add(new Tile("A"));
-        blocks.add(new Tile("B"));
-        blocks.add(new Tile("C"));
-
-        Agent agent = new Agent(n-1,n-1,":^)");
-
-        this.populateBoard(blocks, agent);
+        this.populateBoard();
     }
 
     public void initializeBoard(int n) {
@@ -36,15 +35,35 @@ public class Board {
         this.setBoard(board);
     }
 
-    public void populateBoard(List<Tile> blocks, Agent agent){
+    public void populateBoard(){
         int count = 0;
-        final int n = board.length;
         for (Tile block : blocks) {
             board[n-1][count] = block;
+            block.setCol(count);
+            block.setRow(n-1);
             count++;
         }
 
         board[n-1][n-1] = agent;
+        agent.setCol(n-1);
+        agent.setRow(n-1);
+    }
+
+    public void nearestNeighbours(Tile tile) {
+        ArrayList<Location> neighbours = new ArrayList<>();
+        int x = tile.getCol(), y = tile.getRow();
+        if (x - 1 >= 0) {
+            neighbours.add(new Location(x - 1,y));
+        }
+        if (x + 1 < n) {
+            neighbours.add(new Location(x + 1,y));
+        }
+        if (y - 1 >= 0) {
+            neighbours.add(new Location(x,y - 1));
+        }
+        if (y + 1 < n) {
+            neighbours.add(new Location(x,y + 1));
+        }
     }
 
     public void printBoard() {
@@ -187,5 +206,23 @@ public class Board {
 
     public void setCurrentAgentIndex(int[] currentAgentIndex) {
         this.currentAgentIndex = currentAgentIndex;
+    }
+}
+
+class Location {
+
+    private int x,y;
+
+    public Location(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }
