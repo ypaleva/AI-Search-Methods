@@ -1,15 +1,61 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class Board {
 
     private Tile[][] board;
-    private LinkedList<Tile> currentState;
+    private int[] currentAgentIndex;
+    private Tile[][] currentState;
+    private Tile[][] goalState = {
+            {new Tile(0, 0, "_"), new Tile(0, 1, "_"), new Tile(0, 2, "_"), new Tile(0, 3, "_")},
+            {new Tile(1, 0, "_"), new Tile(1, 1, "A"), new Tile(1, 2, "_"), new Tile(1, 3, "_")},
+            {new Tile(2, 0, "_"), new Tile(2, 1, "B"), new Tile(2, 2, "_"), new Tile(2, 3, "_")},
+            {new Tile(3, 0, "_"), new Tile(3, 1, "C"), new Tile(3, 2, "_"), new Tile(3, 3, "_")},
+    };
 
-    public Board() {
-        this.board = new Tile[4][4];
+    public Board(int n) {
+        this.initializeBoard(n);
 
+        List<Tile> blocks = new ArrayList<>();
+        blocks.add(new Tile("A"));
+        blocks.add(new Tile("B"));
+        blocks.add(new Tile("C"));
+
+        Agent agent = new Agent(n-1,n-1,":^)");
+
+        this.populateBoard(blocks, agent);
+    }
+
+    public void initializeBoard(int n) {
+        Tile[][] board = new Tile[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                board[i][j] = null;
+            }
+        }
+
+        this.setBoard(board);
+    }
+
+    public void populateBoard(List<Tile> blocks, Agent agent){
+        int count = 0;
+        final int n = board.length;
+        for (Tile block : blocks) {
+            board[n-1][count] = block;
+            count++;
+        }
+
+        board[n-1][n-1] = agent;
+    }
+
+    public void printBoard() {
+        for (int i = 0; i < this.board.length; i++) {
+            for (int j = 0; j < this.board[i].length; j++) {
+                Tile tile = getBoard()[i][j];
+                //System.out.print("(" + this.board[i][j].getRow() + "," + this.board[i][j].getCol() + "," + this.board[i][j].getLetter() + " )");
+                System.out.print("[" + (tile == null ? " " : tile.getLetter()) + "]");
+            }
+            System.out.println();
+        }
     }
 
     public Queue<Tile> bfs() {
@@ -25,11 +71,11 @@ public class Board {
         while (!fringe.isEmpty()) {
             Tile t = fringe.poll();
             current = t;
-            if (t.left() != null) {
-                pointers.add(t.left());
+            if (t.getTileLeft() != null) {
+                pointers.add(t.getTileLeft());
             }
-            if (t.right() != null) {
-                pointers.add(t.right());
+            if (t.getTileRight() != null) {
+                pointers.add(t.getTileRight());
             }
         }
         return fringe;
@@ -46,11 +92,11 @@ public class Board {
         while (!fringe.isEmpty()) {
             Tile t = fringe.poll();
             current = t;
-            if (t.left() != null) {
-                fringe.add(t.left());
+            if (t.getTileLeft() != null) {
+                fringe.add(t.getTileLeft());
             }
-            if (t.right() != null) {
-                fringe.add(t.right());
+            if (t.getTileRight() != null) {
+                fringe.add(t.getTileRight());
             }
         }
         return fringe;
@@ -59,18 +105,18 @@ public class Board {
     public LinkedList<Tile> depthLimitedSearch(Tile root, int depth) {
 
         LinkedList<Tile> state = new LinkedList<>();
-        if (depth == 0 && isSolution()) {
+        if (depth == 0) {
             return state;
         }
         if (depth > 0) {
-            if ((root.left() == null) && (root.right() == null)) {
+            if ((root.getTileLeft() == null) && (root.getTileRight() == null)) {
                 return null;
             }
-            if (root.left() != null) {
-                depthLimitedSearch(root.left(), depth - 1);
+            if (root.getTileLeft() != null) {
+                depthLimitedSearch(root.getTileLeft(), depth - 1);
             }
-            if (root.right() != null) {
-                depthLimitedSearch(root.right(), depth - 1);
+            if (root.getTileRight() != null) {
+                depthLimitedSearch(root.getTileRight(), depth - 1);
             }
         }
 
@@ -80,109 +126,66 @@ public class Board {
     public LinkedList<Tile> iterativeDeepening(Tile root) {
         LinkedList<Tile> state = new LinkedList<>();
         for (int depth = 0; depth < Integer.MAX_VALUE; depth++) {
-           state = depthLimitedSearch(root, depth);
-          if (state != null) {
-           return state;
-          }
-       }
-       return state;
+            state = depthLimitedSearch(root, depth);
+            if (state != null) {
+                return state;
+            }
+        }
+        return state;
     }
 
     public boolean isSolution() {
-        LinkedList<Tile> state = new LinkedList<>();
-        state.add(new Tile(0, 0));
-        state.add(new Tile(0, 1));
-        state.add(new Tile(0, 2));
-        state.add(new Tile(0, 3));
-        state.add(new Tile(1, 0));
-        state.add(new Tile(1, 1, 'A'));
-        state.add(new Tile(1, 2));
-        state.add(new Tile(1, 3));
-        state.add(new Tile(2, 0));
-        state.add(new Tile(2, 1, 'B'));
-        state.add(new Tile(2, 2));
-        state.add(new Tile(2, 3));
-        state.add(new Tile(3, 0));
-        state.add(new Tile(3, 1, 'C'));
-        state.add(new Tile(3, 2));
-        state.add(new Tile(3, 3));
-
-
-        if (currentState == state) return true;
+        if (this.getCurrentState().equals(this.getGoalState())) {
+            return true;
+        }
         return false;
     }
 
-    public LinkedList<Tile> getAll() {
-        LinkedList<Tile> allTiles = new LinkedList<>();
-        Tile tile = null;
+    public Tile findTile(int row, int col) {
+        Tile t = null;
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
-                tile = board[i][j];
-                allTiles.add(tile);
-            }
-        }
-        return allTiles;
-    }
-
-
-    public class Tile {
-
-        private char letter;
-        private boolean isAgent;
-        private int row;
-        private int col;
-
-        public Tile(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-
-        public Tile(int row, int col, boolean isAgent) {
-            this.row = row;
-            this.col = col;
-            this.isAgent = isAgent;
-        }
-
-        public Tile(int row, int col, char letter) {
-            this.row = row;
-            this.col = col;
-            this.letter = letter;
-        }
-
-        public int getIndex() {
-            for (int i = 0; i < board.length; i++) {
-                for (int j = 0; j < board.length; j++) {
-
+                if (board[i][j] == board[row][col]) {
+                    t = board[i][j];
                 }
             }
-            return 1;
         }
-
-        public boolean isAgent() {
-            return isAgent;
-        }
-
-        public char getLetter() {
-            return letter;
-        }
-
-        public ArrayList<Tile> neighbours() {
-            ArrayList<Tile> neighbours = new ArrayList<>();
-
-            return neighbours;
-        }
-
-        public Tile left() {
-            Tile left = null;
-
-            return left;
-        }
-
-        public Tile right() {
-            Tile right = null;
-
-            return right;
-        }
+        return t;
     }
 
+    public Tile[][] getAll() {
+        return board;
+    }
+
+    public void setBoard(Tile[][] board) {
+        this.board = board;
+    }
+
+    public Tile[][] getGoalState() {
+        return goalState;
+    }
+
+    public void setGoalState(Tile[][] goalState) {
+        this.goalState = goalState;
+    }
+
+    public Tile[][] getBoard() {
+        return board;
+    }
+
+    public Tile[][] getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(Tile[][] currentState) {
+        this.currentState = currentState;
+    }
+
+    public int[] getCurrentAgentIndex() {
+        return currentAgentIndex;
+    }
+
+    public void setCurrentAgentIndex(int[] currentAgentIndex) {
+        this.currentAgentIndex = currentAgentIndex;
+    }
 }
