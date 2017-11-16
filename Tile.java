@@ -3,17 +3,17 @@ import java.util.ArrayList;
 public class Tile {
 
     private Board board;
-    private int row;
-    private int col;
-    private String letter;
+    protected int row;
+    protected int col;
+    private char letter;
 
-    public Tile(int row, int col, String letter) {
+    public Tile(int row, int col, char letter) {
         this.row = row;
         this.col = col;
         this.letter = letter;
     }
 
-    public Tile(String letter) {
+    public Tile(char letter) {
         this.letter = letter;
     }
 
@@ -21,7 +21,7 @@ public class Tile {
         return new Tile(row, col, letter);
     }
 
-    public String getLetter() {
+    public char getLetter() {
         return letter;
     }
 
@@ -29,7 +29,7 @@ public class Tile {
         return new Location(row, col);
     }
 
-    public void setLetter(String letter) {
+    public void setLetter(char letter) {
         this.letter = letter;
     }
 

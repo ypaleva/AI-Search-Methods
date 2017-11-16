@@ -7,7 +7,7 @@ public class Board {
     private Integer nodesExpanded;
     private Agent agent;
     private List<Tile> blocks;
-    private LinkedList<State> states;
+    private LinkedList<Node> nodes;
 
     public Board(int n, List<Tile> blocks, Agent agent) {
         this.initializeBoard(n);
@@ -17,8 +17,11 @@ public class Board {
         this.populateBoard();
     }
 
-    public Board(Tile[][] board) {
+    public Board(Tile[][] board, ArrayList<Tile> blocks, Agent agent) {
+        this.n = board.length;
         this.board = board;
+        this.blocks = blocks;
+        this.agent = agent;
     }
 
     public void initializeBoard(int n) {
@@ -49,7 +52,6 @@ public class Board {
         for (int i = 0; i < this.board.length; i++) {
             for (int j = 0; j < this.board[i].length; j++) {
                 Tile tile = getBoard()[i][j];
-                //System.out.print("(" + this.board[i][j].getRow() + "," + this.board[i][j].getCol() + "," + this.board[i][j].getLetter() + " )");
                 System.out.print("[" + (tile == null ? " " : tile.getLetter()) + "]");
             }
             System.out.println();
@@ -76,55 +78,48 @@ public class Board {
 
     public Board swapTiles(Location location1, Location location2) {
         Board newBoard = this.clone();
-        Tile first = board[location1.getX()][location1.getY()];
-        Tile second = board[location2.getX()][location2.getY()];
+        Tile first = newBoard.getBoard()[location1.getX()][location1.getY()];
+        Tile second = newBoard.getBoard()[location2.getX()][location2.getY()];
 
-        board[location1.getX()][location1.getY()] = second;
-        board[location2.getX()][location2.getY()] = first;
+        newBoard.getBoard()[location1.getX()][location1.getY()] = second;
+        newBoard.getBoard()[location2.getX()][location2.getY()] = first;
 
         if (first != null) {
             first.setRow(location2.getX());
             first.setCol(location2.getY());
-            newBoard.setAgent((Agent) board[location2.getX()][location2.getX()]);
         }
 
         if (second != null) {
             second.setRow(location1.getX());
             second.setCol(location1.getY());
-            newBoard.setAgent((Agent) board[location2.getX()][location2.getX()]);
         }
 
         return newBoard;
     }
 
-    public Board getGoalState() {
-        Board board = null;
-        Tile[][] tiles = new Tile[n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                tiles[i][j] = null;
+    public Tile getTileByLetter(char letter) {
+       Tile t = null;
+        for (Tile tile : this.getBlocks()) {
+            if (tile.getLetter() == letter) {
+
             }
-        }
-        int count = 1;
-        for (Tile block : blocks) {
-            board.getBoard()[count][1] = block;
-            block.setCol(1);
-            block.setRow(count);
-            count++;
-        }
-        board.getBoard()[n - 1][n - 1] = agent;
-        agent.setCol(n - 1);
-        agent.setRow(n - 1);
-        return board;
-    }
-
-    public boolean isSolution() {
-
-        return false;
+         }
+        return t;
     }
 
     public Board clone() {
-        return new Board(n, blocks, agent);
+        Tile[][] copy = new Tile[n][n];
+
+        ArrayList<Tile> blocks = new ArrayList<>();
+        for (Tile block : this.blocks) {
+            Tile b = block.clone();
+            blocks.add(b);
+            copy[b.getRow()][b.getCol()] = b;
+        }
+        Agent agent = this.agent.clone();
+        copy[agent.getRow()][agent.getCol()] = agent;
+
+        return new Board(copy, blocks, agent);
     }
 
     public Tile[][] getAll() {
@@ -171,12 +166,12 @@ public class Board {
         this.nodesExpanded = nodesExpanded;
     }
 
-    public LinkedList<State> getStates() {
-        return states;
+    public LinkedList<Node> getNodes() {
+        return nodes;
     }
 
-    public void setStates(LinkedList<State> states) {
-        this.states = states;
+    public void setNodes(LinkedList<Node> nodes) {
+        this.nodes = nodes;
     }
 
 }
