@@ -3,22 +3,12 @@ public class Agent extends Tile {
     private int row;
     private int col;
 
-   public Agent(int row, int col, String letter) {
-       super(row, col, letter);
-   }
 
     public Agent(String letter) {
         super(letter);
     }
 
-    public boolean isValidMove(){
-        int row = this.getRow();
-        int col = this.getCol();
-
-        return false;
-    }
-
-    public boolean moveUp() {
+    /*public boolean moveUp() {
         boolean up = false;
         int row = this.getRow();
         int col = this.getCol();
@@ -98,6 +88,6 @@ public class Agent extends Tile {
                 rigth = false;
         }
         return rigth;
-    }
+    }*/
 
 }

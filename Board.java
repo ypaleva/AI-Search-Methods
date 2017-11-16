@@ -4,24 +4,21 @@ public class Board {
 
     private Tile[][] board;
     private int n;
+    private Integer nodesExpanded;
     private Agent agent;
     private List<Tile> blocks;
-
-    private int[] currentAgentIndex;
-    private Tile[][] currentState;
-    private Tile[][] goalState = {
-            {new Tile(0, 0, "_"), new Tile(0, 1, "_"), new Tile(0, 2, "_"), new Tile(0, 3, "_")},
-            {new Tile(1, 0, "_"), new Tile(1, 1, "A"), new Tile(1, 2, "_"), new Tile(1, 3, "_")},
-            {new Tile(2, 0, "_"), new Tile(2, 1, "B"), new Tile(2, 2, "_"), new Tile(2, 3, "_")},
-            {new Tile(3, 0, "_"), new Tile(3, 1, "C"), new Tile(3, 2, "_"), new Tile(3, 3, "_")},
-    };
+    private LinkedList<State> states;
 
     public Board(int n, List<Tile> blocks, Agent agent) {
         this.initializeBoard(n);
+        this.n = n;
         this.blocks = blocks;
         this.agent = agent;
-
         this.populateBoard();
+    }
+
+    public Board(Tile[][] board) {
+        this.board = board;
     }
 
     public void initializeBoard(int n) {
@@ -31,39 +28,21 @@ public class Board {
                 board[i][j] = null;
             }
         }
-
         this.setBoard(board);
     }
 
-    public void populateBoard(){
+    public void populateBoard() {
         int count = 0;
         for (Tile block : blocks) {
-            board[n-1][count] = block;
+            board[n - 1][count] = block;
             block.setCol(count);
-            block.setRow(n-1);
+            block.setRow(n - 1);
             count++;
         }
 
-        board[n-1][n-1] = agent;
-        agent.setCol(n-1);
-        agent.setRow(n-1);
-    }
-
-    public void nearestNeighbours(Tile tile) {
-        ArrayList<Location> neighbours = new ArrayList<>();
-        int x = tile.getCol(), y = tile.getRow();
-        if (x - 1 >= 0) {
-            neighbours.add(new Location(x - 1,y));
-        }
-        if (x + 1 < n) {
-            neighbours.add(new Location(x + 1,y));
-        }
-        if (y - 1 >= 0) {
-            neighbours.add(new Location(x,y - 1));
-        }
-        if (y + 1 < n) {
-            neighbours.add(new Location(x,y + 1));
-        }
+        board[n - 1][n - 1] = agent;
+        agent.setCol(n - 1);
+        agent.setRow(n - 1);
     }
 
     public void printBoard() {
@@ -77,99 +56,75 @@ public class Board {
         }
     }
 
-    public Queue<Tile> bfs() {
-        Queue<Tile> fringe = new LinkedList<>();
-        Tile current = null;
-        Tile root = board[0][0];
-        if (root == null) {
-            return null;
+    public List<Location> nearestNeighbours(Location location) {
+        ArrayList<Location> neighbours = new ArrayList<>();
+        int x = location.getX(), y = location.getY();
+        if (x - 1 >= 0) {
+            neighbours.add(new Location(x - 1, y));
         }
-
-        Queue<Tile> pointers = new LinkedList<>();
-        pointers.add(root);
-        while (!fringe.isEmpty()) {
-            Tile t = fringe.poll();
-            current = t;
-            if (t.getTileLeft() != null) {
-                pointers.add(t.getTileLeft());
-            }
-            if (t.getTileRight() != null) {
-                pointers.add(t.getTileRight());
-            }
+        if (x + 1 < this.n) {
+            neighbours.add(new Location(x + 1, y));
         }
-        return fringe;
+        if (y - 1 >= 0) {
+            neighbours.add(new Location(x, y - 1));
+        }
+        if (y + 1 < this.n) {
+            neighbours.add(new Location(x, y + 1));
+        }
+        return neighbours;
     }
 
-    public Queue<Tile> dfs(Tile tile) {
-        if (tile == null) {
-            return null;
+    public Board swapTiles(Location location1, Location location2) {
+        Board newBoard = this.clone();
+        Tile first = board[location1.getX()][location1.getY()];
+        Tile second = board[location2.getX()][location2.getY()];
+
+        board[location1.getX()][location1.getY()] = second;
+        board[location2.getX()][location2.getY()] = first;
+
+        if (first != null) {
+            first.setRow(location2.getX());
+            first.setCol(location2.getY());
+            newBoard.setAgent((Agent) board[location2.getX()][location2.getX()]);
         }
-        Tile current = null;
-        tile = current;
-        Queue<Tile> fringe = new LinkedList<>();
-        fringe.add(tile);
-        while (!fringe.isEmpty()) {
-            Tile t = fringe.poll();
-            current = t;
-            if (t.getTileLeft() != null) {
-                fringe.add(t.getTileLeft());
-            }
-            if (t.getTileRight() != null) {
-                fringe.add(t.getTileRight());
-            }
+
+        if (second != null) {
+            second.setRow(location1.getX());
+            second.setCol(location1.getY());
+            newBoard.setAgent((Agent) board[location2.getX()][location2.getX()]);
         }
-        return fringe;
+
+        return newBoard;
     }
 
-    public LinkedList<Tile> depthLimitedSearch(Tile root, int depth) {
-
-        LinkedList<Tile> state = new LinkedList<>();
-        if (depth == 0) {
-            return state;
-        }
-        if (depth > 0) {
-            if ((root.getTileLeft() == null) && (root.getTileRight() == null)) {
-                return null;
-            }
-            if (root.getTileLeft() != null) {
-                depthLimitedSearch(root.getTileLeft(), depth - 1);
-            }
-            if (root.getTileRight() != null) {
-                depthLimitedSearch(root.getTileRight(), depth - 1);
+    public Board getGoalState() {
+        Board board = null;
+        Tile[][] tiles = new Tile[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                tiles[i][j] = null;
             }
         }
-
-        return null;
-    }
-
-    public LinkedList<Tile> iterativeDeepening(Tile root) {
-        LinkedList<Tile> state = new LinkedList<>();
-        for (int depth = 0; depth < Integer.MAX_VALUE; depth++) {
-            state = depthLimitedSearch(root, depth);
-            if (state != null) {
-                return state;
-            }
+        int count = 1;
+        for (Tile block : blocks) {
+            board.getBoard()[count][1] = block;
+            block.setCol(1);
+            block.setRow(count);
+            count++;
         }
-        return state;
+        board.getBoard()[n - 1][n - 1] = agent;
+        agent.setCol(n - 1);
+        agent.setRow(n - 1);
+        return board;
     }
 
     public boolean isSolution() {
-        if (this.getCurrentState().equals(this.getGoalState())) {
-            return true;
-        }
+
         return false;
     }
 
-    public Tile findTile(int row, int col) {
-        Tile t = null;
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board.length; j++) {
-                if (board[i][j] == board[row][col]) {
-                    t = board[i][j];
-                }
-            }
-        }
-        return t;
+    public Board clone() {
+        return new Board(n, blocks, agent);
     }
 
     public Tile[][] getAll() {
@@ -180,38 +135,55 @@ public class Board {
         this.board = board;
     }
 
-    public Tile[][] getGoalState() {
-        return goalState;
-    }
-
-    public void setGoalState(Tile[][] goalState) {
-        this.goalState = goalState;
-    }
-
     public Tile[][] getBoard() {
         return board;
     }
 
-    public Tile[][] getCurrentState() {
-        return currentState;
+    public int getN() {
+        return n;
     }
 
-    public void setCurrentState(Tile[][] currentState) {
-        this.currentState = currentState;
+    public void setN(int n) {
+        this.n = n;
     }
 
-    public int[] getCurrentAgentIndex() {
-        return currentAgentIndex;
+    public Agent getAgent() {
+        return agent;
     }
 
-    public void setCurrentAgentIndex(int[] currentAgentIndex) {
-        this.currentAgentIndex = currentAgentIndex;
+    public void setAgent(Agent agent) {
+        this.agent = agent;
     }
+
+    public List<Tile> getBlocks() {
+        return blocks;
+    }
+
+    public void setBlocks(List<Tile> blocks) {
+        this.blocks = blocks;
+    }
+
+    public Integer getNodesExpanded() {
+        return nodesExpanded;
+    }
+
+    public void setNodesExpanded(Integer nodesExpanded) {
+        this.nodesExpanded = nodesExpanded;
+    }
+
+    public LinkedList<State> getStates() {
+        return states;
+    }
+
+    public void setStates(LinkedList<State> states) {
+        this.states = states;
+    }
+
 }
 
 class Location {
 
-    private int x,y;
+    private int x, y;
 
     public Location(int x, int y) {
         this.x = x;
