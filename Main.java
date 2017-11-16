@@ -22,60 +22,72 @@ public class Main {
             System.out.println("Current agent location: (" + b.getAgent().getLocation().getX() + "," + b.getAgent().getLocation().getY() + ")");
         }*/
 
-        depthFirstSearch(board);
+        depthFirstSearch(board).getBoard().printBoard();
 
     }
 
-    public static Node breadthFirstSearch(Board node) {
+    public static Node breadthFirstSearch(Board board) {
         int cost = 0;
+        int count = 0;
         Queue<Node> fringe = new LinkedList<>();
-        Node currentNode = new Node(node.getN(), cost, node.getBlocks(), node.getAgent());
-        if (currentNode.getState() == null) {
+        Node currentNode = new Node(null, board, cost);
+        if (currentNode.getBoard() == null) {
             return null;
         }
         fringe.add(currentNode);
         Board b = null;
         while (!fringe.isEmpty()) {
             currentNode = fringe.poll();
+            count++;
+            //System.out.println(count);
             if (currentNode.isGoalState()) {
                 return currentNode;
             } else {
-                for (Location location : currentNode.getState().nearestNeighbours(currentNode.getState().getAgent().getLocation())) {
-                    b = currentNode.getState().swapTiles(currentNode.getState().getAgent().getLocation(), location);
-                    fringe.add(new Node(b.getN(), currentNode.getCost() + 1, b.getBlocks(), b.getAgent()));
-                    b.printBoard();
+                for (Location location : currentNode.getBoard().nearestNeighbours()) {
+                    if(currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                        continue;
+                    }
+                    b = currentNode.getBoard().swapTiles(location);
+                    fringe.add(new Node(currentNode, b, currentNode.getCost() + 1));
+                    //b.printBoard();
                 }
             }
         }
         return null;
     }
 
-    public static Node depthFirstSearch(Board node) {
+    public static Node depthFirstSearch(Board board) {
         int cost = 0;
+        int count = 0;
         Stack<Node> fringe = new Stack<>();
-        Node currentNode = new Node(node.getN(), cost, node.getBlocks(), node.getAgent());
-        if (currentNode.getState() == null) {
+        Node currentNode = new Node(null, board, cost);
+        if (currentNode.getBoard() == null) {
             return null;
         }
         fringe.add(currentNode);
         Board b = null;
         ArrayList<Node> pointers = new ArrayList<>();
         while (!fringe.isEmpty()) {
-            currentNode =  fringe.pop();;
+            currentNode =  fringe.pop();
+            count++;
+            System.out.println(count);
             if (currentNode.isGoalState()) {
                 return currentNode;
             } else {
-                for (Location location : node.nearestNeighbours(node.getAgent().getLocation())) {
-                    b = node.swapTiles(node.getAgent().getLocation(), location);
-                    pointers.add(new Node(b.getN(), currentNode.getCost() + 1, b.getBlocks(), b.getAgent()));
+                for (Location location : currentNode.getBoard().nearestNeighbours()) {
+                    if(currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                        continue;
+                    }
+                    b = currentNode.getBoard().swapTiles(location);
+                    pointers.add(new Node(currentNode, b, currentNode.getCost() + 1));
                     Collections.shuffle(pointers);
                     for (Node state : pointers) {
                         if (!fringe.contains(state)) {
                             fringe.add(state);
                         }
                     }
+                    //b.printBoard();
                 }
-                b.printBoard();
             }
         }
         return currentNode;

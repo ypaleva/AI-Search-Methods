@@ -58,6 +58,10 @@ public class Board {
         }
     }
 
+    public List<Location> nearestNeighbours() {
+        return nearestNeighbours(agent.getLocation());
+    }
+
     public List<Location> nearestNeighbours(Location location) {
         ArrayList<Location> neighbours = new ArrayList<>();
         int x = location.getX(), y = location.getY();
@@ -74,6 +78,10 @@ public class Board {
             neighbours.add(new Location(x, y + 1));
         }
         return neighbours;
+    }
+
+    public Board swapTiles(Location location) {
+        return swapTiles(agent.getLocation(), location);
     }
 
     public Board swapTiles(Location location1, Location location2) {
@@ -101,7 +109,7 @@ public class Board {
        Tile t = null;
         for (Tile tile : this.getBlocks()) {
             if (tile.getLetter() == letter) {
-
+                t = tile;
             }
          }
         return t;

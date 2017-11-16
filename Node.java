@@ -2,19 +2,21 @@ import java.util.List;
 
 public class Node {
 
+    private Node parent;
     private Board board;
     private int cost;
 
-    public Node(int n, int cost, List<Tile> blocks, Agent agent) {
-        this.board = new Board(n, blocks, agent);
+    public Node(Node parent, Board board, int cost) {
+        this.parent = parent;
+        this.board = board;
         this.cost = cost;
     }
 
     public boolean isGoalState() {
         int n = board.getN();
-        if (board.getBoard()[n - 3][1] == board.getTileByLetter('A') &&
-                board.getBoard()[n - 2][1] == board.getTileByLetter('B') &&
-                    board.getBoard()[n - 1][1] == board.getTileByLetter('C')) {
+        if (board.getTileByLetter('A').equals(board.getBoard()[n - 3][1]) &&
+                board.getTileByLetter('B').equals(board.getBoard()[n - 2][1]) &&
+                board.getTileByLetter('C').equals(board.getBoard()[n - 1][1])) {
             return true;
         }
 
@@ -29,19 +31,27 @@ public class Node {
         return board.getBlocks();
     }
 
-    public Board getState() {
-        return board;
-    }
-
-    public void setState(Board board) {
-        this.board = board;
-    }
-
     public int getCost() {
         return cost;
     }
 
     public void setCost(int cost) {
         this.cost = cost;
+    }
+
+    public Node getParent() {
+        return parent;
+    }
+
+    public void setParent(Node parent) {
+        this.parent = parent;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
     }
 }
