@@ -77,6 +77,7 @@ public class Board {
         if (y + 1 < this.n) {
             neighbours.add(new Location(x, y + 1));
         }
+        Collections.shuffle(neighbours);
         return neighbours;
     }
 
@@ -101,17 +102,16 @@ public class Board {
             second.setRow(location1.getX());
             second.setCol(location1.getY());
         }
-
         return newBoard;
     }
 
     public Tile getTileByLetter(char letter) {
-       Tile t = null;
+        Tile t = null;
         for (Tile tile : this.getBlocks()) {
             if (tile.getLetter() == letter) {
                 t = tile;
             }
-         }
+        }
         return t;
     }
 

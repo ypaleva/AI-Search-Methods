@@ -16,7 +16,7 @@ public class Node {
         int n = board.getN();
         if (board.getTileByLetter('A').equals(board.getBoard()[n - 3][1]) &&
                 board.getTileByLetter('B').equals(board.getBoard()[n - 2][1]) &&
-                board.getTileByLetter('C').equals(board.getBoard()[n - 1][1])) {
+                    board.getTileByLetter('C').equals(board.getBoard()[n - 1][1])) {
             return true;
         }
 
