@@ -86,4 +86,26 @@ public class Node {
         this.estimatedTotalCost = estimatedTotalCost;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        if (getCost() != node.getCost()) return false;
+        if (getEstimatedCostToGoal() != node.getEstimatedCostToGoal()) return false;
+        if (getEstimatedTotalCost() != node.getEstimatedTotalCost()) return false;
+        return getBoard() != null ? getBoard().equals(node.getBoard()) : node.getBoard() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getBoard() != null ? getBoard().hashCode() : 0;
+        result = 31 * result + getCost();
+        result = 31 * result + getEstimatedCostToGoal();
+        result = 31 * result + getEstimatedTotalCost();
+        return result;
+    }
+
 }

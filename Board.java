@@ -75,7 +75,6 @@ public class Board {
         if (y + 1 < this.n) {
             neighbours.add(new Location(x, y + 1));
         }
-        Collections.shuffle(neighbours);
         return neighbours;
     }
 
@@ -164,6 +163,27 @@ public class Board {
         this.blocks = blocks;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Board board1 = (Board) o;
+
+        if (getN() != board1.getN()) return false;
+        if (!Arrays.deepEquals(getBoard(), board1.getBoard())) return false;
+        if (!getAgent().equals(board1.getAgent())) return false;
+        return getBlocks().equals(board1.getBlocks());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.deepHashCode(getBoard());
+        result = 31 * result + getN();
+        result = 31 * result + getAgent().hashCode();
+        result = 31 * result + getBlocks().hashCode();
+        return result;
+    }
 }
 
 class Location {

@@ -15,20 +15,22 @@ public class Main {
         System.out.println("Current agent location: (" + board.getAgent().getLocation().getX() + "," + board.getAgent().getLocation().getY() + ")");
 
         aStar(board).getBoard().printBoard();
-        /*Node n = aStar(board);
-        Stack<Node> printer = new Stack<>();
+        /*Stack<Node> printer = new Stack<>();
         while (n.getParent() != null) {
             printer.add(n);
             n = n.getParent();
         }
 
+        int count = 1;
         while (!printer.empty()) {
             printer.pop().getBoard().printBoard();
+            System.out.println(count);
             System.out.println("------------");
+            count++;
         }*/
     }
 
-    public static Node aStar(Board board) {
+    public static Node aStarV(Board board) {
         int count = 0;
         Node currentNode = new Node(null, board, 0);
         Set<Node> visited = new HashSet<>();
@@ -43,9 +45,16 @@ public class Main {
         fringe.add(currentNode);
         while (!fringe.isEmpty()) {
             currentNode = fringe.poll();
+            if (visited.contains(currentNode)){
+                continue;
+            } else {
+                visited.add(currentNode);
+            }
             if (currentNode.isGoalState()) {
                 return currentNode;
             } else {
+                count++;
+                System.out.println(count);
                 for (Location location : currentNode.getBoard().nearestNeighbours()) {
                     if (currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
                         continue;
@@ -55,11 +64,42 @@ public class Main {
                     newNode.setEstimatedCostToGoal(newNode.manhattanDistance());
                     newNode.setEstimatedTotalCost(newNode.getEstimatedCostToGoal() + newNode.getCost());
 
-                    if (newNode.getEstimatedTotalCost() >= currentNode.getEstimatedTotalCost()) {
-                        fringe.add(newNode);
+                    fringe.add(newNode);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Node aStar(Board board) {
+        int count = 0;
+        Node currentNode = new Node(null, board, 0);
+        Comparator<Node> comparator = new NodeComparator();
+        PriorityQueue<Node> fringe = new PriorityQueue<>(comparator);
+        if (currentNode.getBoard() == null) {
+            return null;
+        }
+        currentNode.setEstimatedCostToGoal(currentNode.manhattanDistance());
+        System.out.println(currentNode.getEstimatedCostToGoal());
+        currentNode.setEstimatedTotalCost(currentNode.getCost() + currentNode.getEstimatedCostToGoal());
+        fringe.add(currentNode);
+        while (!fringe.isEmpty()) {
+            currentNode = fringe.poll();
+            if (currentNode.isGoalState()) {
+                return currentNode;
+            } else {
+                count++;
+                System.out.println(count);
+                for (Location location : currentNode.getBoard().nearestNeighbours()) {
+                    if (currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                        continue;
                     }
-                    count++;
-                    System.out.println(count);
+                    Board newBoard = currentNode.getBoard().swapTiles(location);
+                    Node newNode = new Node(currentNode, newBoard, currentNode.getCost() + 1);
+                    newNode.setEstimatedCostToGoal(newNode.manhattanDistance());
+                    newNode.setEstimatedTotalCost(newNode.getEstimatedCostToGoal() + newNode.getCost());
+
+                    fringe.add(newNode);
                 }
             }
         }
@@ -84,6 +124,7 @@ public class Main {
     }
 
     public static Node depthLimitedSearch(Node node, int limit) {
+        int count = 0;
         Stack<Node> fringe = new Stack<>();
         Node currentNode = node;
         if (currentNode.getBoard() == null) {
@@ -102,6 +143,10 @@ public class Main {
                     }
                     b = currentNode.getBoard().swapTiles(location);
                     fringe.add(new Node(currentNode, b, currentNode.getCost() + 1));
+                }
+                if (limit == 14) {
+                    count++;
+                    System.out.println(count);
                 }
             }
 
