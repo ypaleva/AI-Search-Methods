@@ -4,10 +4,8 @@ public class Board {
 
     private Tile[][] board;
     private int n;
-    private Integer nodesExpanded;
     private Agent agent;
     private List<Tile> blocks;
-    private LinkedList<Node> nodes;
 
     public Board(int n, List<Tile> blocks, Agent agent) {
         this.initializeBoard(n);
@@ -164,22 +162,6 @@ public class Board {
 
     public void setBlocks(List<Tile> blocks) {
         this.blocks = blocks;
-    }
-
-    public Integer getNodesExpanded() {
-        return nodesExpanded;
-    }
-
-    public void setNodesExpanded(Integer nodesExpanded) {
-        this.nodesExpanded = nodesExpanded;
-    }
-
-    public LinkedList<Node> getNodes() {
-        return nodes;
-    }
-
-    public void setNodes(LinkedList<Node> nodes) {
-        this.nodes = nodes;
     }
 
 }
