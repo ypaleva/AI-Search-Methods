@@ -57,4 +57,25 @@ public class Tile {
         this.board = board;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Tile tile = (Tile) o;
+
+        if (getRow() != tile.getRow()) return false;
+        if (getCol() != tile.getCol()) return false;
+        if (getLetter() != tile.getLetter()) return false;
+        return getBoard() != null ? getBoard().equals(tile.getBoard()) : tile.getBoard() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        result = 31 * result + getRow();
+        result = 31 * result + getCol();
+        result = 31 * result + (int) getLetter();
+        return result;
+    }
 }
