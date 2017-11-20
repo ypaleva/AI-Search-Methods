@@ -6,20 +6,30 @@ public class Board {
     private int n;
     private Agent agent;
     private List<Tile> blocks;
+    private Tile obstacle;
+    private boolean hasObstacle;
 
-    public Board(int n, List<Tile> blocks, Agent agent) {
+    public Board(int n, List<Tile> blocks, Agent agent, boolean hasObstacle) {
         this.initializeBoard(n);
         this.n = n;
         this.blocks = blocks;
         this.agent = agent;
+        this.hasObstacle = hasObstacle;
         this.populateBoard();
     }
 
-    public Board(Tile[][] board, ArrayList<Tile> blocks, Agent agent) {
+    public Board(Tile[][] board, ArrayList<Tile> blocks, Agent agent, boolean hasObstacle) {
         this.n = board.length;
         this.board = board;
         this.blocks = blocks;
         this.agent = agent;
+        this.hasObstacle = hasObstacle;
+        if (this.isHasObstacle()) {
+            obstacle = new Tile('#');
+            board[1][n - 2] = obstacle;
+            obstacle.setRow(n - 2);
+            obstacle.setCol(1);
+        }
     }
 
     public void initializeBoard(int n) {
@@ -36,14 +46,21 @@ public class Board {
         int count = 0;
         for (Tile block : blocks) {
             board[n - 1][count] = block;
-            block.setCol(count);
             block.setRow(n - 1);
+            block.setCol(count);
             count++;
         }
 
         board[n - 1][n - 1] = agent;
-        agent.setCol(n - 1);
         agent.setRow(n - 1);
+        agent.setCol(n - 1);
+
+        if (this.isHasObstacle()) {
+            obstacle = new Tile('#');
+            board[1][n - 2] = obstacle;
+            obstacle.setRow(n - 2);
+            obstacle.setCol(1);
+        }
     }
 
     public void printBoard() {
@@ -75,6 +92,7 @@ public class Board {
         if (y + 1 < this.n) {
             neighbours.add(new Location(x, y + 1));
         }
+        neighbours.removeIf(l -> board[l.getX()][l.getY()] != null && board[l.getX()][l.getY()].getLetter() == '#');
         return neighbours;
     }
 
@@ -114,7 +132,7 @@ public class Board {
 
     public Board clone() {
         Tile[][] copy = new Tile[n][n];
-
+        boolean hasObstacle = this.isHasObstacle();
         ArrayList<Tile> blocks = new ArrayList<>();
         for (Tile block : this.blocks) {
             Tile b = block.clone();
@@ -124,7 +142,7 @@ public class Board {
         Agent agent = this.agent.clone();
         copy[agent.getRow()][agent.getCol()] = agent;
 
-        return new Board(copy, blocks, agent);
+        return new Board(copy, blocks, agent, hasObstacle);
     }
 
     public Tile[][] getAll() {
@@ -161,6 +179,22 @@ public class Board {
 
     public void setBlocks(List<Tile> blocks) {
         this.blocks = blocks;
+    }
+
+    public Tile getObstacle() {
+        return obstacle;
+    }
+
+    public void setObstacle(Tile obstacle) {
+        this.obstacle = obstacle;
+    }
+
+    public boolean isHasObstacle() {
+        return hasObstacle;
+    }
+
+    public void setHasObstacle(boolean hasObstacle) {
+        this.hasObstacle = hasObstacle;
     }
 
     @Override

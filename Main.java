@@ -8,14 +8,13 @@ public class Main {
         blocks.add(new Tile('A'));
         blocks.add(new Tile('B'));
         blocks.add(new Tile('C'));
-        //blocks.add(new Tile('D'));
-        Agent agent = new Agent('*');
-        Board board = new Board(4, blocks, agent);
 
+        Agent agent = new Agent('*');
+        Board board = new Board(4, blocks, agent, true);
         board.printBoard();
         System.out.println("Current agent location: (" + board.getAgent().getLocation().getX() + "," + board.getAgent().getLocation().getY() + ")");
 
-        graphSearch(board).getBoard().printBoard();
+        aStarV(board).getBoard().printBoard();
         /*Stack<Node> printer = new Stack<>();
         while (n.getParent() != null) {
             printer.add(n);
