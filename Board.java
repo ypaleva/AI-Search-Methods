@@ -18,6 +18,7 @@ public class Board {
         this.populateBoard();
     }
 
+    //the second constructor is created for the cloning of an object
     public Board(Tile[][] board, ArrayList<Tile> blocks, Agent agent, boolean hasObstacle) {
         this.n = board.length;
         this.board = board;
@@ -26,12 +27,13 @@ public class Board {
         this.hasObstacle = hasObstacle;
         if (this.isHasObstacle()) {
             obstacle = new Tile('#');
-            board[1][n - 2] = obstacle;
+            board[2][n - 2] = obstacle;
             obstacle.setRow(n - 2);
-            obstacle.setCol(1);
+            obstacle.setCol(2);
         }
     }
 
+    //this method initialises the board with NxN null objects
     public void initializeBoard(int n) {
         Tile[][] board = new Tile[n][n];
         for (int i = 0; i < n; i++) {
@@ -42,27 +44,29 @@ public class Board {
         this.setBoard(board);
     }
 
+    //this method is used to populate the board with the tiles, representing the blocks and the agent
+    //also, if a board has an obstacle it sets its position
     public void populateBoard() {
         int count = 0;
         for (Tile block : blocks) {
-            board[n - 1][count] = block;
-            block.setRow(n - 1);
+            board[n-1][count] = block;
+            block.setRow(n-1);
             block.setCol(count);
             count++;
         }
-
         board[n - 1][n - 1] = agent;
         agent.setRow(n - 1);
         agent.setCol(n - 1);
 
         if (this.isHasObstacle()) {
             obstacle = new Tile('#');
-            board[1][n - 2] = obstacle;
+            board[2][n - 2] = obstacle;
             obstacle.setRow(n - 2);
-            obstacle.setCol(1);
+            obstacle.setCol(2);
         }
     }
 
+    //this method traverses the board with two for loops and prints a matrix-like representation of it
     public void printBoard() {
         for (int i = 0; i < this.board.length; i++) {
             for (int j = 0; j < this.board[i].length; j++) {
@@ -77,6 +81,8 @@ public class Board {
         return nearestNeighbours(agent.getLocation());
     }
 
+    //this method checks if the nearest neighbours of the agent are valid tiles, and if so
+    //it adds them to the neighbours list
     public List<Location> nearestNeighbours(Location location) {
         ArrayList<Location> neighbours = new ArrayList<>();
         int x = location.getX(), y = location.getY();
@@ -93,13 +99,17 @@ public class Board {
             neighbours.add(new Location(x, y + 1));
         }
         neighbours.removeIf(l -> board[l.getX()][l.getY()] != null && board[l.getX()][l.getY()].getLetter() == '#');
+        //Collections.shuffle(neighbours);
         return neighbours;
     }
 
+    //this method calls the method below, assuming that the first location is the agent's location
     public Board swapTiles(Location location) {
         return swapTiles(agent.getLocation(), location);
     }
 
+    //this method takes two locations as parameters and swaps them by swapping two tiles
+    //on the board with these locations
     public Board swapTiles(Location location1, Location location2) {
         Board newBoard = this.clone();
         Tile first = newBoard.getBoard()[location1.getX()][location1.getY()];
@@ -130,6 +140,7 @@ public class Board {
         return t;
     }
 
+    //this method clones a board by copying all of the board's fields
     public Board clone() {
         Tile[][] copy = new Tile[n][n];
         boolean hasObstacle = this.isHasObstacle();
@@ -197,6 +208,11 @@ public class Board {
         this.hasObstacle = hasObstacle;
     }
 
+    /*
+    equals and hashCode methods are used in hash set to determine if a board configuration has been
+    seen before, even if it's a different node
+     */
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -219,6 +235,10 @@ public class Board {
         return result;
     }
 }
+
+/*
+this class represents a location on the board, by keeping x and y coordinates of a tile
+ */
 
 class Location {
 

@@ -57,6 +57,12 @@ public class Tile {
         this.board = board;
     }
 
+    /*
+    equals and hashCode methods are used in the hash set in order to
+    compare if a  board configuration
+    has been seen before, even if it is a different node
+     */
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

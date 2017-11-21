@@ -4,18 +4,28 @@ public class Main {
 
 
     public static void main(String[] args) {
+
+        /*
+        initialising a board with block tiles and agent and calling the search methods on it
+         */
         List<Tile> blocks = new ArrayList<>();
         blocks.add(new Tile('A'));
         blocks.add(new Tile('B'));
         blocks.add(new Tile('C'));
 
         Agent agent = new Agent('*');
-        Board board = new Board(4, blocks, agent, true);
+        Board board = new Board(4, blocks, agent, false);
         board.printBoard();
-        System.out.println("Current agent location: (" + board.getAgent().getLocation().getX() + "," + board.getAgent().getLocation().getY() + ")");
+        System.out.println("Current agent location: (" +
+                board.getAgent().getLocation().getX() + "," + board.getAgent().getLocation().getY() + ")");
 
-        aStarV(board).getBoard().printBoard();
-        /*Stack<Node> printer = new Stack<>();
+        //here I call a particular algorithm and since all of them return a node,
+        // I set a node to be the returned one
+        Node n = graphSearch(board);
+        /*
+        I am using a stack to reverse the path given by an algorithm in order to visualise it
+         */
+        Stack<Node> printer = new Stack<>();
         while (n.getParent() != null) {
             printer.add(n);
             n = n.getParent();
@@ -27,9 +37,14 @@ public class Main {
             System.out.println("Cost: " + cost);
             System.out.println("------------");
             cost++;
-        }*/
+        }
     }
 
+    /*
+    Graph search uses a stack (the fringe), a hash set of boards and a current node
+    then while the stack is not empry and the removed node is not the goal state,
+    it adds the node's board to the set and keeps expanding until the goal state is reached
+     */
     public static Node graphSearch(Board board) {
         int count = 0;
         Stack<Node> fringe = new Stack<>();
@@ -49,7 +64,8 @@ public class Main {
                     count++;
                     System.out.println(count);
                     for (Location location : currentNode.getBoard().nearestNeighbours()) {
-                        if (currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                        if (currentNode.getParent() != null &&
+                                location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
                             continue;
                         }
                         Board newBoard = currentNode.getBoard().swapTiles(location);
@@ -62,8 +78,15 @@ public class Main {
         return null;
     }
 
-
-    public static Node aStarV(Board board) {
+    /*
+       A* optimal search uses a priority queue (the fringe), a hash set of boards and a current node
+       then while the queue is not empty it adds the node to the visited set if it's not there already
+       and checks if the removed node is not the goal state and keeps expanding until the goal state is reached;
+       the different thing about this algorithm is it uses a heuristic (Manhattan Distance) and it doesn't go
+       through paths that are already expensive; that's possible by each node having a cost,
+       estimated cost to goal, and estimated total cost
+    */
+    public static Node aStarOptimal(Board board) {
         int count = 0;
         Node currentNode = new Node(null, board, 0);
         Set<Board> visited = new HashSet<>();
@@ -77,8 +100,8 @@ public class Main {
         currentNode.setEstimatedTotalCost(currentNode.getCost() + currentNode.getEstimatedCostToGoal());
         fringe.add(currentNode);
         while (!fringe.isEmpty()) {
-           currentNode = fringe.poll();
-            if (visited.contains(currentNode.getBoard())){
+            currentNode = fringe.poll();
+            if (visited.contains(currentNode.getBoard())) {
                 continue;
             } else {
                 visited.add(currentNode.getBoard());
@@ -89,7 +112,8 @@ public class Main {
                 count++;
                 System.out.println(count);
                 for (Location location : currentNode.getBoard().nearestNeighbours()) {
-                    if (currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                    if (currentNode.getParent() != null &&
+                            location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
                         continue;
                     }
                     Board newBoard = currentNode.getBoard().swapTiles(location);
@@ -104,6 +128,14 @@ public class Main {
         return null;
     }
 
+    /*
+        A* search uses a priority queue (the fringe) and a current node
+        then checks if the removed node is not the goal state and keeps expanding
+        until the goal state is reached; the different thing about this algorithm is it uses
+        a heuristic (Manhattan Distance) and it doesn't go through
+        paths that are already expensive; that's possible by each node having a cost,
+        estimated cost to goal, and estimated total cost
+     */
     public static Node aStar(Board board) {
         int count = 0;
         Node currentNode = new Node(null, board, 0);
@@ -114,7 +146,8 @@ public class Main {
         }
         currentNode.setEstimatedCostToGoal(currentNode.manhattanDistance());
         System.out.println(currentNode.getEstimatedCostToGoal());
-        currentNode.setEstimatedTotalCost(currentNode.getCost() + currentNode.getEstimatedCostToGoal());
+        currentNode.setEstimatedTotalCost(currentNode.getCost() +
+                currentNode.getEstimatedCostToGoal());
         fringe.add(currentNode);
         while (!fringe.isEmpty()) {
             currentNode = fringe.poll();
@@ -124,7 +157,8 @@ public class Main {
                 count++;
                 System.out.println(count);
                 for (Location location : currentNode.getBoard().nearestNeighbours()) {
-                    if (currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                    if (currentNode.getParent() != null &&
+                            location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
                         continue;
                     }
                     Board newBoard = currentNode.getBoard().swapTiles(location);
@@ -139,6 +173,12 @@ public class Main {
         return null;
     }
 
+    /*
+    Iterative Deepening Search uses another method which it calls if the goal is not found on this level;
+    the Depth Limited Search is almost like Depth First Search -
+    it uses a stack and a current node which changes every time we pop the stack
+    then if it is not the solution and the depth is not reached it keeps expanding, else returns the solution
+     */
     public static Node iterativeDeepening(Board board) {
         int cost = 0;
         int count = 0;
@@ -171,13 +211,14 @@ public class Main {
                 return currentNode;
             } else if (currentNode.getCost() < limit) {
                 for (Location location : currentNode.getBoard().nearestNeighbours()) {
-                    if (currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                    if (currentNode.getParent() != null &&
+                            location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
                         continue;
                     }
                     b = currentNode.getBoard().swapTiles(location);
                     fringe.add(new Node(currentNode, b, currentNode.getCost() + 1));
                 }
-                if (limit == 14) {
+                if (limit == 5) {
                     count++;
                     System.out.println(count);
                 }
@@ -187,6 +228,11 @@ public class Main {
         return null;
     }
 
+    /*
+    This method uses a queue and a current node, adds the current node to the queue,
+    and then while the queue is not empty it keeps
+    checking is the head is the goal state, if not it keeps expanding
+    */
     public static Node breadthFirstSearch(Board board) {
         int cost = 0;
         int count = 0;
@@ -205,7 +251,8 @@ public class Main {
                 return currentNode;
             } else {
                 for (Location location : currentNode.getBoard().nearestNeighbours()) {
-                    if (currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                    if (currentNode.getParent() != null &&
+                            location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
                         continue;
                     }
                     b = currentNode.getBoard().swapTiles(location);
@@ -216,6 +263,10 @@ public class Main {
         return null;
     }
 
+    /*
+    This method is essentially the same as Breadth First Search, but it uses a Stack versus a Queue because here we
+    need a first-in-last-out data structure in order to go down on one branch only
+     */
     public static Node depthFirstSearch(Board board) {
         int cost = 0;
         int count = 0;
@@ -234,7 +285,8 @@ public class Main {
                 return currentNode;
             } else {
                 for (Location location : currentNode.getBoard().nearestNeighbours()) {
-                    if (currentNode.getParent() != null && location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
+                    if (currentNode.getParent() != null &&
+                            location.equals(currentNode.getParent().getBoard().getAgent().getLocation())) {
                         continue;
                     }
                     b = currentNode.getBoard().swapTiles(location);
